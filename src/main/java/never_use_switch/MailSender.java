@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Evgeny Borisov
@@ -15,18 +16,18 @@ public class MailSender {
     @Autowired
     private MailDao mailDao;
 
+    @Autowired
+    private Map<String, MailGenerator> map;
+
     @Scheduled(fixedDelay = 1000)
     public void sendMail() {
         MailInfo mailInfo = mailDao.getMailInfo();
-        switch (mailInfo.getMailCode()) {
-            case 1:
-                System.out.println("Welcome new client mail sent");
-                // 80 lines of code
-                break;
-            case 2:
-                // 100 lines of code
-                System.out.println("don't call us we call you mail sent");
-                break;
-        }
+        MailGenerator mailGenerator = map.get(Integer.toString(mailInfo.getMailCode()));
+        String html = mailGenerator.generateHtml(mailInfo);
+        send(html);
+    }
+
+    private void send(String html) {
+        System.out.println("sending... "+html);
     }
 }
