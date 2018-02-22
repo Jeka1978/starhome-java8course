@@ -1,5 +1,6 @@
 package taxi_lab;
 
+import org.apache.spark.Accumulator;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -44,13 +45,15 @@ public class Main {
         JavaPairRDD<Integer, String> driversData = sc.textFile("data/taxi/drivers.txt")
                 .mapToPair(line -> {
                             String[] strings = line.split(",");
-                    return new Tuple2<>(Integer.valueOf(strings[0]), strings[1]);
+                            return new Tuple2<>(Integer.valueOf(strings[0]), strings[1]);
                         }
                 );
         JavaPairRDD<Integer, Tuple2<Integer, String>> joinedRdd = id2TotalKm
                 .join(driversData);
         joinedRdd.mapToPair(Tuple2::_2).
                 sortByKey(false).take(3).forEach(System.out::println);
+
+
 
 
     }
