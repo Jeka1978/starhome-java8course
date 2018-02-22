@@ -2,10 +2,9 @@ package linkedIn;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.functions;
 
 import java.util.Arrays;
 
@@ -25,7 +24,7 @@ public class Main {
         SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("Linked In");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(sc);
-        DataFrame dataFrame = sqlContext.read().json("data/linkedIn/*.json");
+        Dataset<Row> dataFrame = sqlContext.read().json("data/linkedIn/*.json");
         dataFrame.show();
         dataFrame.printSchema();
         Arrays.stream(dataFrame.schema().fields()).forEach(System.out::println);
@@ -34,7 +33,7 @@ public class Main {
         dataFrame.show();
 
 
-        DataFrame keyWordDF = dataFrame.withColumn(KEYWORD, explode(col(KEYWORDS))).select(KEYWORD);
+        Dataset<Row> keyWordDF = dataFrame.withColumn(KEYWORD, explode(col(KEYWORDS))).select(KEYWORD);
         Row first = keyWordDF.groupBy(col(KEYWORD)).agg(count(KEYWORD).as("amount"))
                 .sort(col("amount").desc()).first();
         String mostPopular = first.getAs(KEYWORD);
